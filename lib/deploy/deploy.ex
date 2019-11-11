@@ -72,8 +72,14 @@ defmodule MixDeploy.Deploy do
         SSH.run!(ssh, "mkdir #{release_dir}")
 
       [{_previous_id, previous_dir} | _] ->
+        reflink =
+          case config.rsync_copy_reflink do
+            true  -> "--reflink"
+            false -> ""
+          end
+
         info("remote: Copying previous release dir to speed up rsync")
-        SSH.run!(ssh, "cp -r #{previous_dir} #{release_dir}")
+        SSH.run!(ssh, "cp -r #{reflink} #{previous_dir} #{release_dir}")
     end
 
     state

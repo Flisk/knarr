@@ -10,6 +10,7 @@ defmodule MixDeploy.Config do
     port: nil,
     app_path: nil,
     max_releases: nil,
+    rsync_copy_reflink: nil,
 
     shared_files: nil,
     shared_directories: nil,
@@ -45,6 +46,7 @@ defmodule MixDeploy.Config do
       port: Keyword.get(server, :port, 22),
       app_path: Keyword.fetch!(server, :app_path),
       max_releases: Keyword.fetch!(server, :max_releases),
+      rsync_copy_reflink: Keyword.get(server, :rsync_copy_reflink, false),
 
       shared_files: Keyword.get(shared, :files, []),
       shared_directories: Keyword.get(shared, :directories, []),
