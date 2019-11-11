@@ -6,48 +6,44 @@ defmodule Mix.Tasks.Deploy do
   @impl Mix.Task
   def run(args) do
     try do
-      args
-      |> load_config()
-      |> run_deployment()
+      run_deployment(args)
     rescue
       error in [RuntimeError] ->
         Mix.shell().error("mix_deploy: #{error.message}")
     end
   end
 
-  defp load_config(args) do
+  defp run_deployment(args) do
+    args
+    |> initialize()
+    |> build_release()
+    |> remote_connect()
+    |> remote_create_release_dir()
+    |> rsync_deploy_release()
+    |> remote_link_shared_paths()
+    |> remote_update_current_symlink()
+    |> remote_run_hooks()
+    |> remote_clean_releases()
+    |> report_success()
+  end
+
+  defp initialize(args) do
     case args do
       [] ->
         raise "Missing deployment config argument"
 
       [config_name] ->
-        MixDeploy.Config.load(config_name)
+        %{
+          config: MixDeploy.Config.load(config_name),
+          build_dir: "_build/mix_deploy"
+        }
 
       _ ->
         raise "Too many arguments"
     end
   end
 
-  defp run_deployment(config) do
-    config
-    |> initialize_state()
-    |> build_release()
-    |> remote_connect()
-    |> remote_create_release_dir()
-    |> rsync_deploy_release()
-    |> remote_update_current_symlink()
-    |> remote_clean_releases()
-    |> report_success()
-  end
-
-  defp initialize_state(config) do
-    %{
-      config: config,
-      build_dir: "_build/mix_deploy"
-    }
-  end
-
-  defp build_release(%{build_dir: build_dir} = state) do
+  defp build_release(%{build_dir: build_dir,} = state) do
     info("Switching Mix to :prod environment")
     Mix.env(:prod)
 
@@ -123,6 +119,33 @@ defmodule Mix.Tasks.Deploy do
     state
   end
 
+  defp remote_link_shared_paths(
+    %{
+      ssh: ssh,
+      config: config,
+      remote_release_dir: release_dir
+    } = state
+  ) do
+    info("Linking shared paths")
+
+    symlink_shared_paths(ssh, release_dir, config.shared_files)
+    symlink_shared_paths(ssh, release_dir, config.shared_directories)
+
+    state
+  end
+
+  defp symlink_shared_paths(_, _, []), do: nil
+
+  defp symlink_shared_paths(ssh, release_dir, [path | paths]) do
+    source = Path.join(["..", "..", "shared", path])
+    target = Path.join(release_dir, path)
+
+    info("  #{target} -> #{source}")
+    SSH.run!(ssh, "ln --symbolic #{source} #{target}")
+
+    symlink_shared_paths(ssh, release_dir, paths)
+  end
+
   defp remote_update_current_symlink(
     %{
       ssh: ssh,
@@ -142,6 +165,20 @@ defmodule Mix.Tasks.Deploy do
     )
 
     state
+  end
+
+  defp remote_run_hooks(%{ssh: ssh, config: config} = state) do
+    info("Running after_deploy hooks")
+    run_hooks(ssh, config.hooks_after_deploy)
+    state
+  end
+
+  defp run_hooks(_ssh, []), do: nil
+
+  defp run_hooks(ssh, [command | remaining_commands]) do
+    info("remote: $ #{command}")
+    SSH.run!(ssh, command)
+    run_hooks(ssh, remaining_commands)
   end
 
   defp remote_clean_releases(

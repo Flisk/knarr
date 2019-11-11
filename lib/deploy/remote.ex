@@ -2,6 +2,7 @@ defmodule MixDeploy.Remote do
   alias MixDeploy.SSH
 
   @releases_dir "releases"
+  @shared_dir   "shared"
 
   @doc """
   Ensure that a remote host is correctly initialized for deployments.
@@ -10,6 +11,7 @@ defmodule MixDeploy.Remote do
   def check_deploy_dirs(ssh, app_path) do
     SSH.run!(ssh, "cd " <> app_path)
     SSH.run!(ssh, "test -d " <> @releases_dir)
+    SSH.run!(ssh, "test -d " <> @shared_dir)
     SSH.run!(ssh, "cd")
     nil
   end

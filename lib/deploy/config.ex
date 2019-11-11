@@ -9,7 +9,12 @@ defmodule MixDeploy.Config do
     user: nil,
     port: nil,
     app_path: nil,
-    max_releases: nil
+    max_releases: nil,
+
+    shared_files: nil,
+    shared_directories: nil,
+
+    hooks_after_deploy: nil
   )
 
   @spec load(String.t()) :: %MixDeploy.Config{}
@@ -30,14 +35,21 @@ defmodule MixDeploy.Config do
 
   @spec new(keyword()) :: %MixDeploy.Config{}
   def new(config) do
-    target = Keyword.fetch!(config, :target)
+    server = Keyword.fetch!(config, :server)
+    hooks  = Keyword.get(config, :hooks, [])
+    shared = Keyword.get(config, :shared, [])
 
     %MixDeploy.Config{
-      host: Keyword.fetch!(target, :host),
-      user: Keyword.fetch!(target, :user),
-      port: Keyword.get(target, :port, 22),
-      app_path: Keyword.fetch!(target, :app_path),
-      max_releases: Keyword.fetch!(target, :max_releases)
+      host: Keyword.fetch!(server, :host),
+      user: Keyword.fetch!(server, :user),
+      port: Keyword.get(server, :port, 22),
+      app_path: Keyword.fetch!(server, :app_path),
+      max_releases: Keyword.fetch!(server, :max_releases),
+
+      shared_files: Keyword.get(shared, :files, []),
+      shared_directories: Keyword.get(shared, :directories, []),
+
+      hooks_after_deploy: Keyword.get(hooks, :after_deploy, [])
     }
   end
   
