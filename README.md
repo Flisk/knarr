@@ -2,20 +2,10 @@
 
 Simple versioned deployments of `mix release` bundles in pure Elixir.
 
-## Installation
+## Todo
 
-If [available in Hex](https://hex.pm/docs/publish), the package can be installed
-by adding `mix_deploy` to your list of dependencies in `mix.exs`:
-
-```elixir
-def deps do
-  [
-    {:mix_deploy, "~> 0.1.0"}
-  ]
-end
-```
-
-Documentation can be generated with [ExDoc](https://github.com/elixir-lang/ex_doc)
-and published on [HexDocs](https://hexdocs.pm). Once published, the docs can
-be found at [https://hexdocs.pm/mix_deploy](https://hexdocs.pm/mix_deploy).
-
+* Toss all that weird SSH plumbing and replace it with a
+  `ControlPersist` based approach
+* Remote lock file to prevent simultaneous deployments
+* Deploy to hidden directory, rename to proper release path on
+  successful completion
