@@ -33,8 +33,7 @@ defmodule Knarr.Deploy do
   end
 
   defp build_release(%{build_dir: build_dir} = state) do
-    info("Switching Mix to :prod environment")
-    Mix.env(:prod)
+    info("Mix environment is #{Mix.env}")
 
     info("Building release in #{build_dir}")
     Mix.Task.run(
