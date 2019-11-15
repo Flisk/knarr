@@ -1,6 +1,6 @@
-defmodule MixDeploy.Deploy do
-  alias MixDeploy.Remote
-  alias MixDeploy.SSH
+defmodule Knarr.Deploy do
+  alias Knarr.Remote
+  alias Knarr.SSH
 
   def run(args) do
     args
@@ -19,16 +19,16 @@ defmodule MixDeploy.Deploy do
   defp initialize(args) do
     case args do
       [] ->
-        raise "Missing deployment config argument"
+        raise "missing deployment config argument"
 
       [config_name] ->
         %{
-          config: MixDeploy.Config.load(config_name),
-          build_dir: "_build/mix_deploy"
+          config: Knarr.Config.load(config_name),
+          build_dir: "_build/knarr"
         }
 
       _ ->
-        raise "Too many arguments"
+        raise "too many arguments"
     end
   end
 
@@ -72,11 +72,7 @@ defmodule MixDeploy.Deploy do
         SSH.run!(ssh, "mkdir #{release_dir}")
 
       [{_previous_id, previous_dir} | _] ->
-        reflink =
-          case config.rsync_copy_reflink do
-            true  -> "--reflink"
-            false -> ""
-          end
+        reflink = if config.rsync_copy_reflink, do: "--reflink", else: ""
 
         info("remote: Copying previous release dir to speed up rsync")
         SSH.run!(ssh, "cp -r #{reflink} #{previous_dir} #{release_dir}")
@@ -211,13 +207,13 @@ defmodule MixDeploy.Deploy do
   @ansi_reset      "\x1b[0m"
 
   defp info(message) do
-    [@ansi_bold_blue, "mix_deploy: ", @ansi_reset, message]
+    [@ansi_bold_blue, "knarr: ", @ansi_reset, message]
     |> Enum.join()
     |> Mix.shell().info()
   end
 
   defp success(message) do
-    [@ansi_bold_green, "mix_deploy: ", @ansi_reset, message]
+    [@ansi_bold_green, "knarr: ", @ansi_reset, message]
     |> Enum.join()
     |> Mix.shell().info()
   end

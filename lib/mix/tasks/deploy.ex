@@ -1,6 +1,7 @@
 defmodule Mix.Tasks.Deploy do
   use Mix.Task
-  alias MixDeploy.Deploy
+
+  alias Knarr.Deploy
 
   @impl Mix.Task
   def run(args) do
