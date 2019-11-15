@@ -9,7 +9,7 @@ defmodule Mix.Tasks.Deploy do
       Deploy.run(args)
     rescue
       error in [RuntimeError] ->
-        Mix.shell().error("mix_deploy: #{error.message}")
+        Mix.shell().error("knarr: #{error.message}")
     end
   end
 end
