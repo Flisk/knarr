@@ -32,7 +32,7 @@ library. For the time being:
 
 1. Put it in your deps
 2. Add a deployment config in `config/knarr/<name>.exs`:
-3. Cross fingers and run `$ mix knarr deploy <name>`
+3. Cross fingers and run `$ mix knarr.deploy <name>`
 
 Sample deployment config:
 

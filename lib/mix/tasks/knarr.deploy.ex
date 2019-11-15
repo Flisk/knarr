@@ -1,12 +1,12 @@
-defmodule Mix.Tasks.Deploy do
+defmodule Mix.Tasks.Knarr.Deploy do
   use Mix.Task
 
-  alias Knarr.Deploy
+  @shortdoc "Perform a configured release deployment"
 
   @impl Mix.Task
   def run(args) do
     try do
-      Deploy.run(args)
+      Knarr.Deploy.run(args)
     rescue
       error in [RuntimeError] ->
         Mix.shell().error("knarr: #{error.message}")
