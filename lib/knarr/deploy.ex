@@ -39,7 +39,6 @@ defmodule Knarr.Deploy do
     Mix.Task.run(
       "release",
       [
-        "--force",
         "--quiet",
         "--overwrite",
         "--path", build_dir
