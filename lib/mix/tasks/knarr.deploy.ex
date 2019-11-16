@@ -10,6 +10,7 @@ defmodule Mix.Tasks.Knarr.Deploy do
     rescue
       error in [RuntimeError] ->
         Mix.shell().error("knarr: #{error.message}")
+        exit({:shutdown, 1})
     end
   end
 end
