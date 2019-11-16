@@ -26,11 +26,6 @@ defmodule Knarr.SSH do
     # dummy command to skip login messages
     {0, _} = run(port, "true")
 
-    # disable shell prompt and input echoing so they don't interfere
-    # with command output
-    {0, _} = run(port, "PS1=")
-    {0, _} = run(port, "stty -echo")
-
     port
   end
 
@@ -103,10 +98,6 @@ defmodule Knarr.SSH do
 
       "-l", user,
       "-p", port,
-
-      # pseudo-tty is required for process control, specified twice to
-      # force allocation even if ssh determines stdin not to be a tty
-      "-tt",
 
       host
     ]
