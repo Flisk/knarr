@@ -5,14 +5,21 @@ defmodule RemoteTest do
   doctest Knarr.Remote
 
   test "next_release" do
-    releases = [
-      {4, "app/releases/4"},
-      {3, "app/releases/3"},
-      {2, "app/releases/2"},
-      {1, "app/releases/1"}
-    ]
+    pristine_remote = %Remote{
+      app_path: "app",
+      releases: []
+    }
 
-    assert Remote.next_release([], "app") == {1, "app/releases/1"}
-    assert Remote.next_release(releases, "app") == {5, "app/releases/5"}
+    remote_with_some_releases = %{
+      pristine_remote | releases: [
+        {4, "app/releases/4"},
+        {3, "app/releases/3"},
+        {2, "app/releases/2"},
+        {1, "app/releases/1"}
+      ]
+    }
+
+    assert Remote.next_release(pristine_remote) == {1, "app/releases/1"}
+    assert Remote.next_release(remote_with_some_releases) == {5, "app/releases/5"}
   end
 end

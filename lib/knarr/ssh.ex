@@ -10,8 +10,8 @@ defmodule Knarr.SSH do
   
   Returns the port used for communication with the ssh process.
   """
-  @spec connect(String.t, String.t, pos_integer) :: port
-  def connect(host, user, port) do
+  @spec connect(String.t, pos_integer, String.t) :: port
+  def connect(host, port, user) do
     port = Port.open(
       {:spawn_executable, find_ssh_executable()},
       [
