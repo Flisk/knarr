@@ -1,5 +1,7 @@
 defmodule Knarr.Config do
   defstruct [
+    :require_mix_env,
+
     :host,
     :user,
     :port,
@@ -32,11 +34,14 @@ defmodule Knarr.Config do
 
   @spec new(keyword) :: %__MODULE__{}
   def new(config) do
-    server = Keyword.fetch!(config, :server)
-    hooks  = Keyword.get(config, :hooks, [])
-    shared = Keyword.get(config, :shared, [])
+    release = Keyword.get(config, :release, [])
+    server  = Keyword.fetch!(config, :server)
+    hooks   = Keyword.get(config, :hooks, [])
+    shared  = Keyword.get(config, :shared, [])
 
     %__MODULE__{
+      require_mix_env: Keyword.get(release, :require_mix_env, nil),
+
       host: Keyword.fetch!(server, :host),
       user: Keyword.fetch!(server, :user),
       port: Keyword.get(server, :port, 22),

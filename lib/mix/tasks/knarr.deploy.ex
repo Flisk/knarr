@@ -3,6 +3,7 @@ defmodule Mix.Tasks.Knarr.Deploy do
 
   @rescue_errors [
     Knarr.UsageError,
+    Knarr.RequiredEnvError,
     Knarr.RemoteDirsError,
     Knarr.LockFileError
   ]

@@ -2,6 +2,24 @@ defmodule Knarr.UsageError do
   defexception [:message]
 end
 
+defmodule Knarr.RequiredEnvError do
+  defexception [:message]
+
+  @impl true
+  def exception([required_envs: required_envs]) do
+    %__MODULE__{
+      message: """
+      Invalid Mix environment for this deployment configuration.
+
+      The current Mix environment is #{Mix.env()}, but the selected
+      deployment configuration only allows the following:
+
+        #{inspect required_envs}
+      """
+    }
+  end
+end
+
 defmodule Knarr.RemoteCommandError do
   defexception [:message]
 

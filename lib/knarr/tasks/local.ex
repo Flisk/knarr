@@ -6,8 +6,8 @@ defmodule Knarr.Tasks.Local do
   import Knarr.Console, only: [info: 1]
 
   @spec build_release(map) :: map
-  def build_release(%{build_dir: build_dir} = state) do
-    info("current Mix environment: #{Mix.env}")
+  def build_release(%{config: config, build_dir: build_dir} = state) do
+    ensure_required_env(config.require_mix_env)
 
     info("building release in #{build_dir}")
     Mix.Task.run(
@@ -20,6 +20,21 @@ defmodule Knarr.Tasks.Local do
     )
 
     state
+  end
+
+  @spec ensure_required_env([atom] | atom | nil) :: nil
+
+  def ensure_required_env(nil) do
+    nil
+  end
+
+  def ensure_required_env(atom) when is_atom(atom) do
+    ensure_required_env([atom])
+  end
+
+  def ensure_required_env(atoms) when is_list(atoms) do
+    unless Enum.member?(atoms, Mix.env()),
+      do: raise Knarr.RequiredEnvError, required_envs: atoms
   end
 
   @spec rsync_release(map) :: map
