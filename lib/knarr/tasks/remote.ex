@@ -13,6 +13,12 @@ defmodule Knarr.Tasks.Remote do
     Map.put(state, :remote, remote)
   end
 
+  @spec disconnect(map) :: map
+  def disconnect(%{remote: remote} = state) do
+    Remote.disconnect(remote)
+    Map.delete(state, :remote)
+  end
+
   @spec create_release_dir(map) :: map
   def create_release_dir(%{remote: remote, config: config} = state) do
     next_release = Remote.next_release(remote)

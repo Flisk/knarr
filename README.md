@@ -14,7 +14,6 @@ personally loves functional programming, so, hey. Thing needs a name.
 
 * Toss all that weird SSH plumbing and replace it with a
   `ControlPersist` based approach
-* Remote lock file to prevent simultaneous deployments
 * Deploy to hidden directory, rename to proper release path on
   successful completion
 * Catch and/or handle as many failure modes as possible

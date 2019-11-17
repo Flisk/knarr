@@ -8,12 +8,13 @@ defmodule Knarr.Remote do
 
   alias Knarr.SSH
 
-  defstruct [:ssh, :app_path, :releases]
+  defstruct [:ssh, :app_path, :lock_path, :releases]
 
   @type t                  :: %__MODULE__{}
   @type release_tuple      :: {pos_integer, String.t}
   @type release_tuple_list :: [release_tuple]
 
+  @lock_file    ".knarr-lock"
   @current_dir  "current"
   @releases_dir "releases"
   @shared_dir   "shared"
@@ -25,14 +26,21 @@ defmodule Knarr.Remote do
     ssh = SSH.connect(host, port, user)
     check_deploy_dirs(ssh, app_path)
 
+    lock_path = Path.join(app_path, @lock_file)
+    create_lock_file(ssh, lock_path)
+
     releases = find_releases(ssh, app_path)
 
     %__MODULE__{
       ssh: ssh,
       app_path: app_path,
+      lock_path: lock_path,
       releases: releases
     }
   end
+
+  @spec disconnect(t) :: nil
+  def disconnect(remote), do: delete_lock_file(remote.ssh, remote.lock_path)
 
   @spec check_deploy_dirs(port, String.t) :: nil
   defp check_deploy_dirs(ssh, app_path) do
@@ -67,6 +75,32 @@ defmodule Knarr.Remote do
       {release_number, ""} -> {release_number, release_dir}
       _ -> raise "invalid release directory: #{release_dir}"
     end
+  end
+
+  @spec create_lock_file(port, String.t) :: nil
+  defp create_lock_file(ssh, lock_path) do
+    {:ok, hostname} = :inet.gethostname()
+    time = DateTime.utc_now() |> DateTime.to_unix() |> Integer.to_string()
+
+    lock_text = "#{hostname}\n#{time}\n" |> Base.encode64()
+
+    # set -C enables "noclobber", which prevents shell redirection
+    # from overwriting existing files
+    command = "set -C && echo #{lock_text} > #{lock_path} && set +C"
+
+    case SSH.run(ssh, command) do
+      {0, []} ->
+        nil
+
+      {_non_zero, _} ->
+        raise "failed to create lock file"
+    end
+  end
+
+  @spec delete_lock_file(port, String.t) :: nil
+  defp delete_lock_file(ssh, lock_path) do
+    SSH.run!(ssh, "rm #{lock_path}")
+    nil
   end
 
   @spec next_release(t) :: release_tuple

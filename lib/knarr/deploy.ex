@@ -3,17 +3,26 @@ defmodule Knarr.Deploy do
   alias Knarr.Console
 
   def run(args) do
-    args
-    |> initialize()
-    |> Tasks.Local.build_release()
-    |> Tasks.Remote.connect()
-    |> Tasks.Remote.create_release_dir()
-    |> Tasks.Local.rsync_release()
-    |> Tasks.Remote.symlink_shared_paths()
-    |> Tasks.Remote.update_current_symlink()
-    |> Tasks.Remote.run_hooks()
-    |> Tasks.Remote.clean_releases()
-    |> report_success()
+    state_connected =
+      args
+      |> initialize()
+      |> Tasks.Local.build_release()
+      |> Tasks.Remote.connect()
+
+    try do
+      state_connected
+      |> Tasks.Remote.create_release_dir()
+      |> Tasks.Local.rsync_release()
+      |> Tasks.Remote.symlink_shared_paths()
+      |> Tasks.Remote.update_current_symlink()
+      |> Tasks.Remote.run_hooks()
+      |> Tasks.Remote.clean_releases()
+      |> report_success()
+    after
+      Tasks.Remote.disconnect(state_connected)
+    end
+
+    nil
   end
 
   defp initialize(args) do
