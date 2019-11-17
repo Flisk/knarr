@@ -44,10 +44,16 @@ defmodule Knarr.Remote do
 
   @spec check_deploy_dirs(port, String.t) :: nil
   defp check_deploy_dirs(ssh, app_path) do
-    SSH.run!(ssh, "cd " <> app_path)
-    SSH.run!(ssh, "test -d " <> @releases_dir)
-    SSH.run!(ssh, "test -d " <> @shared_dir)
-    SSH.run!(ssh, "cd")
+    try do
+      SSH.run!(ssh, "cd " <> app_path)
+      SSH.run!(ssh, "test -d " <> @releases_dir)
+      SSH.run!(ssh, "test -d " <> @shared_dir)
+      SSH.run!(ssh, "cd")
+    rescue
+      Knarr.RemoteCommandError ->
+        raise Knarr.RemoteDirsError, app_path: app_path
+    end
+
     nil
   end
 
@@ -93,7 +99,7 @@ defmodule Knarr.Remote do
         nil
 
       {_non_zero, _} ->
-        raise "failed to create lock file"
+        raise Knarr.LockFileError, lock_path: lock_path
     end
   end
 

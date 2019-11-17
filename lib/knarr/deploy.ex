@@ -1,6 +1,6 @@
 defmodule Knarr.Deploy do
-  alias Knarr.Tasks
   alias Knarr.Console
+  alias Knarr.Tasks
 
   def run(args) do
     state_connected =
@@ -28,7 +28,7 @@ defmodule Knarr.Deploy do
   defp initialize(args) do
     case args do
       [] ->
-        raise "missing deployment config argument"
+        raise Knarr.UsageError, "missing deployment config argument"
 
       [config_name] ->
         %{
@@ -37,7 +37,7 @@ defmodule Knarr.Deploy do
         }
 
       _ ->
-        raise "too many arguments"
+        raise Knarr.UsageError, "too many arguments"
     end
   end
 

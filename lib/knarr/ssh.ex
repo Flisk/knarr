@@ -36,8 +36,11 @@ defmodule Knarr.SSH do
   @spec run!(port, String.t) :: [String.t]
   def run!(port, command) do
     case run(port, command) do
-      {0, output}   -> output
-      {non_zero, _} -> raise "command #{command} returned #{non_zero}"
+      {0, output} ->
+        output
+
+      {exit_code, _} ->
+        raise Knarr.RemoteCommandError, exit_code: exit_code, command: command
     end
   end
 
