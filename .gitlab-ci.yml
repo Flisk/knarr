@@ -1,0 +1,27 @@
+# -- Global config -------------------------------------------------------------
+
+default:
+  image: gitlab-registry.flisk.xyz/flisk/knarr/ci
+
+cache:
+  paths:
+    - deps
+    - _build
+
+# -- Jobs ----------------------------------------------------------------------
+
+build:
+  stage: build
+  script:
+    - mix deps.get
+    - mix compile
+    - MIX_ENV=test mix compile
+    - mix dialyzer.build
+
+test:
+  stage: test
+  script: mix test
+
+dialyzer:
+  stage: test
+  script: mix dialyzer --quiet
