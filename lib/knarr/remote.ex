@@ -19,7 +19,7 @@ defmodule Knarr.Remote do
   @releases_dir "releases"
   @shared_dir   "shared"
 
-  @spec connect(String.t, String.t, String.t, String.t) :: t
+  @spec connect(String.t, pos_integer, String.t, String.t) :: t
   def connect(host, port, user, app_path) do
     info("connecting to #{host}:#{port} as #{user}")
 
@@ -158,7 +158,10 @@ defmodule Knarr.Remote do
   end
 
   @spec delete_release(port, release_tuple) :: nil
-  defp delete_release(ssh, {_id, dir}), do: SSH.run!(ssh, "rm -r #{dir}")
+  defp delete_release(ssh, {_id, dir}) do
+    SSH.run!(ssh, "rm -r #{dir}")
+    nil
+  end
 
   @spec symlink_shared_paths(t, String.t, [String.t]) :: nil
 

@@ -61,7 +61,7 @@ defmodule Knarr.SSH do
     end
   end
 
-  @spec receive_command_result(port, String.t, [String.t]) :: [String.t]
+  @spec receive_command_result(port, String.t, [String.t]) :: {integer, [String.t]}
   def receive_command_result(port, end_token, lines \\ []) do
     case receive_line(port) do
       ^end_token ->
@@ -77,14 +77,14 @@ defmodule Knarr.SSH do
     end
   end
 
-  @spec find_ssh_executable :: String.t
+  @spec find_ssh_executable :: charlist
   defp find_ssh_executable do
     case System.find_executable("ssh") do
       nil ->
         raise "ssh executable not found"
 
       executable ->
-        executable
+        String.to_charlist(executable)
     end
   end
 
@@ -106,7 +106,7 @@ defmodule Knarr.SSH do
     ]
   end
 
-  @spec new_end_token :: integer
+  @spec new_end_token :: String.t
   defp new_end_token,
     do: Enum.random(1000000..1000000000) |> Integer.to_string()
 
