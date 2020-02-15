@@ -200,6 +200,7 @@ defmodule Knarr.Remote do
   end
 
   def run_commands(remote, [command | commands]) do
+    info("remote: $ #{command}")
     SSH.run!(remote.ssh, command)
     run_commands(remote, commands)
   end
