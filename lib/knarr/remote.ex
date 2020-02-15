@@ -173,7 +173,7 @@ defmodule Knarr.Remote do
     source = Path.join(["..", "..", "shared", path])
     target = Path.join(release_dir, path)
 
-    info("  #{target} -> #{source}")
+    info("remote:   #{target} -> #{source}")
     SSH.run!(remote.ssh, "ln --symbolic #{source} #{target}")
 
     symlink_shared_paths(remote, release_dir, paths)
