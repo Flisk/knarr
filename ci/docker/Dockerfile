@@ -1,4 +1,5 @@
-FROM elixir:1.9-slim
+ARG from
+FROM ${from}
 
 RUN useradd -m ci
 
