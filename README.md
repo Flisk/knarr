@@ -1,14 +1,31 @@
 # Knarr
 
-**Instability disclaimer:** In its current state, this library is
-meant for no one but myself. Don't use it unless you're happy to
-tinker with it, or maybe even contribute.
-
-Simple versioned deployments of `mix release` bundles in Elixir. Kind
-of like Capistrano, but not really.
+Simple versioned deployments of `mix release` bundles in Elixir. Kind of like
+Capistrano, but not really.
 
 Named after a type of [Norse merchant ship][1]. Every viking I know
 personally loves functional programming, so, hey. Thing needs a name.
+
+## What it does
+
+It deploys your application to a remote host in a directory tree like this:
+
+```
+.
+├── current -> releases/80/
+├── releases/
+│   ├── 78/
+│   ├── 79/
+│   └── 80/
+└── shared/
+    └── uploads/
+```
+
+`current` is a symlink pointing to the latest deployed release, `releases/`
+contains deployed releases, a configurable number of which Knarr will retain
+for possible later rollback, and `shared` contains files and directories that
+are automatically symlinked into release directories prior to altering the
+`current` symlink.
 
 ## Todo
 
@@ -17,6 +34,7 @@ personally loves functional programming, so, hey. Thing needs a name.
 * Deploy to hidden directory, rename to proper release path on
   successful completion
 * Catch and/or handle as many failure modes as possible
+* Rollbacks
 
 ## Requirements
 
@@ -26,18 +44,21 @@ personally loves functional programming, so, hey. Thing needs a name.
 
 ## Usage
 
-... will be thoroughly documented when (if?) I properly release this
-library. For the time being:
-
-1. Put it in your deps
-2. Add a deployment config in `config/knarr/<name>.exs`:
+1. Add Knarr to your `mix.exs`:
+   ```elixir
+   {:knarr, git: "https://gitlab.flisk.xyz/Flisk/knarr.git", runtime: false},
+   ```
+2. Run `mix deps.get`
+2. Create a deployment config at `config/knarr/<name>.exs`
 3. Cross fingers and run `$ mix knarr.deploy <name>`
 
-Sample deployment config:
+### Example deployment config
 
 ```elixir
+# config/knarr/example.exs
 import Config
 
+# The target host you're deploying to
 config :server,
   host: "example.com",
   port: 22,
@@ -49,8 +70,10 @@ config :server,
 config :shared,
   directories: ["uploads"]
 
+# Commands to run in various phases of the deployment process
 config :hooks,
   after_deploy: ["sudo systemctl restart your-app"]
+  
 ```
 
 This example will invariably fall out-of-date. When in doubt, check
