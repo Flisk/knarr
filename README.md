@@ -46,7 +46,7 @@ are automatically symlinked into release directories prior to altering the
 
 1. Add Knarr to your `mix.exs`:
    ```elixir
-   {:knarr, git: "https://gitlab.flisk.xyz/Flisk/knarr.git", runtime: false},
+   {:knarr, git: "https://github.com/Flisk/knarr.git", runtime: false},
    ```
 2. Run `mix deps.get`
 2. Create a deployment config at `config/knarr/<name>.exs`
